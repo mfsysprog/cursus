@@ -6,6 +6,8 @@
 #include <poll.h>
 #include "gpio.h"
 
+// poll werkt nog niet
+
 int main(void)
 {
   struct mygpio mygpio1;
