@@ -6,8 +6,6 @@
 #include <poll.h>
 #include "gpio.h"
 
-// poll werkt nog niet
-
 int main(void)
 {
   struct mygpio mygpio1;
@@ -15,9 +13,10 @@ int main(void)
   char gpiopath[ 1024 ];
   char str1[20] = "/sys/class/gpio/gpio";
   char str2[6] = "/value";
-  snprintf( gpiopath, sizeof( gpiopath ), "%s%s%s", str1, mygpio1.gpionum, str2 );
-  int fd = open(gpiopath,O_RDONLY);
-  // not yet exported
+  if (0 > snprintf( gpiopath, sizeof( gpiopath ), "%s%s%s", str1, mygpio1.gpionum, str2 ))
+  return -1;
+  fprintf(stderr,"path is %s\n",gpiopath);
+  int fd = open(gpiopath,O_RDONLY|O_NONBLOCK);
   if (errno == 2) 
   {
     printf("Exporting gpio%s...\n",mygpio1.gpionum);
@@ -42,7 +41,7 @@ int main(void)
        strerror(errno));
        return -1;
     }
-    fd = open(gpiopath,O_RDONLY);
+    fd = open(gpiopath,O_RDONLY|O_NONBLOCK);
     
     if (fd < 0)
     {
@@ -66,12 +65,16 @@ int main(void)
   }  
 //  char value[1];
   char loadavg[80];
-  int sleeptime=150000;
+  int sleeptime=1000000;
   struct pollfd fdset[1];
   nfds_t nfds = 1; 
   int rc;
-  int timeout = -1;
- 
+  int timeout = 3000;
+  char buffertje[1];
+  
+  //dummy read
+  read(fd,buffertje,1); 
+
   while (1)
   {
     usleep(sleeptime);
@@ -88,11 +91,13 @@ int main(void)
      }
     if(fdset[0].revents & POLLPRI)
     {
-     fprintf(stderr,"rc: %i, revents:%#06x\n",rc, fdset[0].revents);
+     //fprintf(stderr,"rc: %i, revents:%#06x\n",rc, fdset[0].revents);
      //printf("ret: %i - revents[0]: %i", ret, fds[0].revents);
-     //  read(fdloadavg,loadavg,sizeof(loadavg));
-     //  write(1,loadavg,strlen(loadavg));
-     //  lseek(fdloadavg,0,SEEK_SET);
+     read(fdloadavg,loadavg,sizeof(loadavg));
+     write(1,loadavg,strlen(loadavg));
+     lseek(fdloadavg,0,SEEK_SET);
+     // dummy read
+     read(fd,buffertje,1);
     } 
     else write(1,"waiting...\n",11); 
     if (lseek(fd,0,SEEK_SET)<0) return 1;
