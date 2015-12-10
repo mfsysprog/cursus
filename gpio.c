@@ -8,11 +8,12 @@
 
 int main(void)
 {
+  int test[1];
   struct mygpio mygpio1;
   strncpy(mygpio1.gpionum, "67", 2);
   char gpiopath[ 1024 ];
-  char str1[20] = "/sys/class/gpio/gpio";
-  char str2[6] = "/value";
+  char str1[21] = "/sys/class/gpio/gpio";
+  char str2[7] = "/value";
   if (0 > snprintf( gpiopath, sizeof( gpiopath ), "%s%s%s", str1, mygpio1.gpionum, str2 ))
   return -1;
   fprintf(stderr,"path is %s\n",gpiopath);

@@ -1,5 +1,5 @@
 struct mygpio {
-  char gpionum[2];
+  char gpionum[3];
   int value;
 };
 
